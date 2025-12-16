@@ -1,0 +1,281 @@
+#include <iostream>
+#include <vector>
+#include <stack>
+#include <algorithm>
+#include <queue>
+#include <ctime>
+#include <cstdlib>
+using namespace std;
+
+// problem 1 
+struct biTree {
+    int val;
+    biTree* left;
+    biTree* right;
+    biTree(int x) : val(x), left(nullptr), right(nullptr) {}
+};
+
+class Solution {
+public:
+    bool isHeap(biTree* root) {
+        int nodeCount = countNodes(root);
+        return isCompleteTree(root, 0, nodeCount) && 
+               isMaxHeapProperty(root);
+    }
+    
+private:
+    int countNodes(biTree* root) {
+        if (!root) return 0;
+        return 1 + countNodes(root->left) + countNodes(root->right);
+    }
+
+    bool isCompleteTree(biTree* root, int index, int nodeCount) {
+        if (!root) return true;
+        if (index >= nodeCount) return false;
+        
+        return isCompleteTree(root->left, 2 * index + 1, nodeCount) &&
+               isCompleteTree(root->right, 2 * index + 2, nodeCount);
+    }
+    
+    bool isMaxHeapProperty(biTree* root) {
+        if (!root) return true;
+        
+        if (root->left) {
+            if (root->val < root->left->val) 
+                return false;
+            if (!isMaxHeapProperty(root->left))
+                return false;
+        }
+        
+        if (root->right) {
+            if (root->val < root->right->val)
+                return false;
+            if (!isMaxHeapProperty(root->right))
+                return false;
+        }
+        
+        return true;
+    }
+};
+
+// problem 2 
+struct Node {
+    int data;
+    Node* next;
+    Node(int x) : data(x), next(nullptr) {}
+};
+
+Node* mergeKLists(vector<Node*>& lists) {
+    auto cmp = [](Node* a, Node* b) {
+        return a->data > b->data;
+    };
+    priority_queue<Node*, vector<Node*>, decltype(cmp)> pq(cmp);
+
+    for (Node* head : lists) {
+        if (head != nullptr)
+            pq.push(head);
+    }
+
+    Node* temp = new Node(0);
+    Node* tail = temp;
+
+    while (!pq.empty()) {
+        Node* smallest = pq.top();
+        pq.pop();
+
+        tail->next = smallest;
+        tail = smallest;
+
+        if (smallest->next != nullptr) {
+            pq.push(smallest->next);
+        }
+    }
+
+    Node* result = temp->next;
+    delete temp;
+    return result;
+}
+
+// problem 3 
+vector<int> topK(const vector<int>& A, int K) {
+    priority_queue<int, vector<int>, greater<int>> pq;
+
+    for (int i = 0; i < K; i++) {
+        pq.push(A[i]);
+    }
+
+    for (int i = K; i < A.size(); i++) {
+        if (A[i] > pq.top()) {
+            pq.pop();
+            pq.push(A[i]);
+        }
+    }
+
+    vector<int> result;
+    while (!pq.empty()) {
+        result.push_back(pq.top());
+        pq.pop();
+    }
+    return result;
+}
+
+// problem 4 
+void heapify(vector<int>& arr, int n, int i) {
+    int largest = i;
+    int left = 2 * i + 1;
+    int right = 2 * i + 2;
+
+    if (left < n && arr[left] > arr[largest])
+        largest = left;
+    if (right < n && arr[right] > arr[largest])
+        largest = right;
+
+    if (largest != i) {
+        swap(arr[i], arr[largest]);
+        heapify(arr, n, largest);
+    }
+}
+
+void heapSort(vector<int>& arr) {
+    int n = arr.size();
+    for (int i = n / 2 - 1; i >= 0; i--)
+        heapify(arr, n, i);
+    for (int i = n - 1; i > 0; i--) {
+        swap(arr[0], arr[i]);
+        heapify(arr, i, 0);
+    }
+}
+
+int partition(vector<int>& arr, int low, int high) {
+    int pivot = arr[high];
+    int i = low - 1;
+    for (int j = low; j < high; j++) {
+        if (arr[j] <= pivot) {
+            i++;
+            swap(arr[i], arr[j]);
+        }
+    }
+    swap(arr[i + 1], arr[high]);
+    return i + 1;
+}
+
+void quickSort(vector<int>& arr, int low, int high) {
+    if (low < high) {
+        int pi = partition(arr, low, high);
+        quickSort(arr, low, pi - 1);
+        quickSort(arr, pi + 1, high);
+    }
+}
+
+void deleteTree(biTree* root) {
+    if (!root) return;
+    deleteTree(root->left);
+    deleteTree(root->right);
+    delete root;
+}
+
+
+
+
+int main() {
+    // problen 1
+    cout<<"problem 1"<<endl;
+    Solution sol;
+    biTree* root1 = new biTree(10);
+    root1->left = new biTree(9);
+    root1->right = new biTree(8);
+    root1->left->left = new biTree(7);
+    root1->left->right = new biTree(6);
+    
+    cout << "Tree 1 is heap: " << (sol.isHeap(root1) ? "true" : "false") << endl;
+    
+
+    deleteTree(root1);
+
+    //problem 2
+    cout<<"problem 2"<<endl;
+    Node* list1 = new Node(1);
+    list1->next = new Node(4);
+    list1->next->next = new Node(5);
+    
+    Node* list2 = new Node(1);
+    list2->next = new Node(3);
+    list2->next->next = new Node(4);
+    
+    Node* list3 = new Node(2);
+    list3->next = new Node(6);
+    
+    vector<Node*> lists = {list1, list2, list3};
+    
+    cout << "Input lists:" << endl;
+    cout << "List 1: 1->4->5" << endl;
+    cout << "List 2: 1->3->4" << endl;
+    cout << "List 3: 2->6" << endl;
+    
+    Node* merged = mergeKLists(lists);
+    
+    cout << "Merged list: ";
+    Node* current = merged;
+    while (current) {
+        cout << current->data;
+        if (current->next) cout << "->";
+        current = current->next;
+    }
+    cout << endl << endl;
+    
+    current = merged;
+    while (current) {
+        Node* temp = current;
+        current = current->next;
+        delete temp;
+    }
+    
+
+    
+   //porblem 3
+    
+    vector<int> arr = {3, 2, 1, 5, 6, 4, 9, 8, 7};
+    int K = 3;
+    cout<<"problem 3"<<endl;
+    cout << "Input array: ";
+    for (int num : arr) cout << num << " ";
+    cout << endl;
+    cout << "K = " << K << endl;
+    
+    vector<int> topKElements = topK(arr, K);
+    
+    cout << "Top " << K << " elements: ";
+    for (int num : topKElements) cout << num << " ";
+    cout << endl;
+    
+    // Test with different K
+    K = 5;
+    topKElements = topK(arr, K);
+    cout << "Top " << K << " elements: ";
+    for (int num : topKElements) cout << num << " ";
+    cout << endl;
+    
+    // problem 4 
+    srand(time(0));
+    
+    cout << "problem 4" << endl;
+    
+    for (int n = 1000; n <= 5000; n += 1000) {
+        vector<int> arr(n);
+        for (int i = 0; i < n; i++)
+            arr[i] = rand() % 10000;
+    
+        vector<int> arr1 = arr;
+        clock_t start = clock();
+        heapSort(arr1);
+        double heapTime = (double)(clock() - start) / CLOCKS_PER_SEC * 1000;
+        
+        vector<int> arr2 = arr;
+        start = clock();
+        quickSort(arr2, 0, n - 1);
+        double quickTime = (double)(clock() - start) / CLOCKS_PER_SEC * 1000;
+        cout << n << " elements - Heap: " << heapTime << "ms, Quick: " << quickTime << "ms" << endl;
+    }
+    
+    return 0;
+}
