@@ -1,0 +1,163 @@
+#include <iostream>
+#include <stack>
+#include <string>
+using namespace std;
+
+
+// Question 1
+
+int main() {
+    string input;
+    cout << "Enter a string: ";
+    cin >> input;
+
+    stack<char> s;
+
+    // Push all characters into the stack
+    for (char c : input) {
+        s.push(c);
+    }
+
+    // Pop and build reversed string
+    string reversed = "";
+    while (!s.empty()) {
+        reversed += s.top();
+        s.pop();
+    }
+
+    // Check if string and reverse are the same
+    if (input == reversed) {
+        cout << "Palindrome" << endl;
+    } else {
+        cout << "Not a palindrome" << endl;
+    }
+
+    return 0;
+}
+
+#include <iostream>
+#include <stack>
+#include <string>
+using namespace std;
+
+// Question 2
+
+// Function to determine operator precedence
+int precedence(char op) {
+    if (op == '+' || op == '-') return 1;
+    if (op == '*' || op == '/') return 2;
+    return 0;
+}
+
+int main() {
+    string expression;   // "the expression to read"
+    cout << "Enter infix expression: ";
+    cin >> expression;
+
+    // Initialize a stack of characters to hold operation symbols and parentheses
+    stack<char> operatorStack; 
+    string output = "";  // postfix expression
+
+    // do (for each symbol in the input expression)
+    for (char nextInput : expression) {
+
+        // the next input is a left parenthesis
+        if (nextInput == '(') {
+            operatorStack.push(nextInput);
+        }
+
+        // the next input is a number or other operand
+        else if (isalnum(nextInput)) {
+            output += nextInput;
+        }
+
+        // the next input is one of the operation symbols
+        else if (nextInput == '+' || nextInput == '-' || 
+                 nextInput == '*' || nextInput == '/') {
+            while (!operatorStack.empty() &&
+                   operatorStack.top() != '(' &&
+                   precedence(operatorStack.top()) >= precedence(nextInput)) {
+                // Print the top operation and pop it
+                output += operatorStack.top();
+                operatorStack.pop();
+                // while none of the three conditions are true:
+                // (1) stack becomes empty
+                // (2) next symbol on stack is '('
+                // (3) next symbol on stack has lower precedence
+            }
+
+            // Read the next input symbol, and push it onto the stack
+            operatorStack.push(nextInput);
+        }
+
+        // else (the next input is a right parenthesis)
+        else if (nextInput == ')') {
+            // Read and discard the next input symbol (the right parenthesis)
+            // Print and pop until next symbol on stack is a left parenthesis
+            while (!operatorStack.empty() && operatorStack.top() != '(') {
+                output += operatorStack.top();
+                operatorStack.pop();
+            }
+            // Finally, pop the left parenthesis
+            if (!operatorStack.empty()) operatorStack.pop();
+        }
+    }
+
+    // Print and pop any remaining operations on the stack
+    while (!operatorStack.empty()) {
+        output += operatorStack.top();
+        operatorStack.pop();
+    }
+
+    cout << "Postfix expression: " << output << endl;
+    return 0;
+}
+
+struct node{
+    char data;
+    node* _n; // for pointer to the next node
+};
+
+    node *_head = nullptr;  //global
+
+void flip() {
+    node* prev = nullptr;
+    node* curr = _head;
+    node* next = nullptr;
+    
+
+
+    // Reverse the linked list pointers
+    while (curr != nullptr) {
+        next = curr->_n;   // store next node
+        curr->_n = prev;   // reverse the link
+        prev = curr;       // move prev forward
+        curr = next;       // move curr forward
+    }
+
+    // update head pointer to point at new top
+    _head = prev;
+}
+
+#include <stack>
+using namespace std;
+
+// Question 4
+
+bool equalStacks(stack<char> A, stack<char> B) { // define the type of stack, stack holds chars here
+     // check if equal size
+    if (A.size() != B.size())
+        return false;
+
+    // compare each element
+    while (!A.empty() && !B.empty()) {
+        if (A.top() != B.top())
+            return false;
+        A.pop();
+        B.pop();
+    }
+
+    // if it made it thru the while loop theyre equal
+    return true; 
+}
+
