@@ -1,0 +1,174 @@
+#include <iostream>
+#include <map>
+#include <set>
+#include <string>
+
+#include <vector>
+
+using namespace std;
+
+template <typename Key, typename T>
+class KeyedBag {
+private:
+    vector<pair<Key, T>> items;   // store key and value pairs like anagrams
+
+public:
+    // add a new item with a unique key by checking for duplicates than pushing back
+    void add(const Key& key, const T& value) {
+        int i = 0;
+        while (i < items.size()) {
+            if (items[i].first == key) {
+                cout << "Key " << key << " already exists. Skipping.\n";
+                return;
+            }
+            i++;
+        }
+        items.push_back({key, value});  
+    }
+
+    // Remove an item by key by searching for it and erasing it from the vector
+    bool remove(const Key& key) {
+        int i = 0;
+        while (i < items.size()) {
+            if (items[i].first == key) {
+                items.erase(items.begin() + i);
+                return true;
+            }
+            i++;
+        }
+        return false;
+    }
+
+    // Check if a key exists by looping through the vector and comparing keys
+    bool contains(const Key& key) const {
+        int i = 0;
+        while (i < items.size()) {
+            if (items[i].first == key) return true;
+            i++;
+        }
+        return false;
+    }
+
+    // Display all items
+    void display() const {
+        int i = 0;
+        while (i < items.size()) {
+            cout << items[i].first << " --> " << items[i].second << endl;
+            i++;
+        }
+    }
+};
+
+// problem 2
+
+class GiftList {
+private:
+    map<string, set<string>> data;
+
+public:
+    void addPerson(const string& name) { //creates a person
+        data[name]; // default empty set ( no gifts yet)
+    }
+
+    void addGift(const string& name, const string& gift) { // adds a gift to a person
+        data[name].insert(gift);
+    }
+
+    void removePerson(const string& name) { // removes a person and all their gifts
+        data.erase(name);
+    }
+
+    void removeGift(const string& name, const string& gift) { // removes a specific gift from a person
+        data[name].erase(gift);
+    }
+
+    void display() { // displays all people and their gifts
+        map<string, set<string>>::iterator it = data.begin();
+        while (it != data.end()) {
+            cout << it->first << " -> ";
+            set<string>::iterator g = it->second.begin();
+            while (g != it->second.end()) {
+                cout << *g << " ";
+                g++;
+            }
+            it++;
+        }
+    }
+};
+
+// problem 3
+
+bool allUnique(vector<pair<char,char>> cards) {
+    sort(cards.begin(), cards.end()); // sort by rank, then suit
+
+    int i = 1;
+    while (i < cards.size()) {
+        if (cards[i] == cards[i-1]) {
+            return false; // found duplicate
+        }
+        i++;
+    }
+    return true;
+}
+
+// problem 4
+
+// assuming the order is A < 2-9 <T (10) < J < Q < K
+// assuming the suits order is C < D < H < S (doesn't really matter)
+
+// Helper function to get rank index
+int rankValue(char r) {
+    string ranks = "A23456789TJQK";  
+    int i = 0;
+    while (i < ranks.size()) {
+        if (r == ranks[i]) return i;
+        i++;
+    }
+    return -1;
+}
+// gives us the index of the rank in the ordered string
+
+// Helper function to get suit index
+int suitValue(char s) {
+    string suits = "CDHS";
+    int i = 0;
+    while (i < suits.size()) {
+        if (s == suits[i]) return i;
+        i++;
+    }
+    return -1;
+}
+
+// Comparator for sorting cards
+bool compareCards(pair<char,char> a, pair<char,char> b) {
+    if (rankValue(a.first) != rankValue(b.first)) {
+        return rankValue(a.first) < rankValue(b.first);
+    }
+    return suitValue(a.second) < suitValue(b.second);
+}
+// compares two cards first by rank, then by suit if ranks are equal
+// then returns the lower rank, then higher rank
+
+// Function to print cards in ascending order
+void printSortedCards(vector<pair<char,char>> cards) {
+    vector<pair<char,char>> sorted;
+    while (!cards.empty()) {
+        int minIndex = 0;
+        int j = 1;
+        while (j < cards.size()) {
+            if (compareCards(cards[j], cards[minIndex])) {
+                minIndex = j;
+            }
+            j++;
+        }
+        sorted.push_back(cards[minIndex]);
+        cards.erase(cards.begin() + minIndex);
+    }
+
+    int i = 0;
+    while (i < sorted.size()) {
+        cout << sorted[i].first << sorted[i].second << " ";
+        i++;
+    }
+    cout << endl;
+}
