@@ -1,0 +1,111 @@
+// question 1 
+
+void reverse() {
+    // empty or single element
+    if (_ptr == nullptr || _ptr->_n == nullptr){
+        return;
+    }
+
+    // Move to the head (leftmost node)
+    reset();
+    dnode* current = _ptr;
+    dnode* temp = nullptr;
+
+    // Swap next and prev for all nodes
+    while (current != nullptr) {
+        temp = current->_p;
+        current->_p = current->_n;
+        current->_n = temp;
+        current = current->_p; 
+    }
+
+    // Move _ptr to what used to be the last node (now the head)
+    if (temp != nullptr) {
+        _ptr = temp->_p;
+    }
+}
+
+
+// question 2 
+
+bool hasCycle(node* head) {
+    if (head == nullptr || head->_n == nullptr){
+        return false;
+    }
+
+    node* slow = head;
+    node* fast = head;
+
+    while (fast != nullptr && fast->_n != nullptr) {
+        slow = slow->_n;           // move slow one step
+        fast = fast->_n->_n;       // move fast two steps
+
+        if (slow == fast) {        // they meet = cycle
+            return true;
+        }
+    }
+
+    return false; // fast reached end, so no cycle
+}
+
+// question 3
+
+template <typename T>
+// call for a sorted array
+bool binarySearch(const T arr[], int size, const T& key) {
+    int low = 0;
+    int high = size - 1;
+
+    // check by dividing the array
+    while (low <= high) {
+        int mid = (low + high) / 2;
+
+        // search right half then left half
+        if (arr[mid] == key) {
+            return true; 
+        } 
+        else if (arr[mid] < key) {
+            low = mid + 1; 
+        } 
+        else {
+            high = mid - 1; 
+        }
+    }
+
+    return false; // not found
+}
+
+// Question 4
+
+bool BinarySearch_TortoiseHare(List& C, int x) {
+
+    List D(C);         
+    bool found = false;
+
+    // tortise and hare pointers
+    int start = 0;
+    int end = D.size() - 1;
+
+    while (start <= end) {
+        int mid = (start + end) / 2;
+
+        // Move D to the middle position
+        D.reset();
+        for (int i = 0; i < mid; i++) D.move_forward();
+
+        int midVal = D.value();
+
+        if (midVal == x) {
+            found = true;
+            break;
+        }
+        else if (midVal < x) {
+            start = mid + 1;  // right half
+        } 
+        else {
+            end = mid - 1;    // left half
+        }
+    }
+
+    return found;
+}
